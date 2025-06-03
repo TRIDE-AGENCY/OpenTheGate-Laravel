@@ -1,0 +1,275 @@
+.btn-myprimary,
+.btn-myprimary i,
+.active .page-link-myprimary,
+.flatpickr-day.selected {
+    background-color: #325C9E !important;
+    color: #FFFFFF !important;
+}
+
+.btn-myprimary:hover,
+.btn-myprimary:hover i,
+.active .page-link-myprimary:hover {
+    background-color: #28477C !important;
+    color: #FFFFFF !important;
+}
+
+.btn-mysecondary,
+.btn-mysecondary i {
+    background-color: #E7EDF7 !important;
+    color: #28477C !important;
+}
+
+.btn-mysecondary:hover,
+.btn-mysecondary:hover i {
+    background-color: #CAD8ED !important;
+    color: #253E67 !important;
+}
+
+.btn-mydanger,
+.btn-mydanger i {
+    background-color: #FEE2E2 !important;
+    color: #B91C1C !important;
+}
+
+.btn-mydanger:hover,
+.btn-mydanger:hover i {
+    background-color: #FECACA !important;
+    color: #991B1B !important;
+}
+
+.btn-mydanger-solid,
+.btn-mydanger-solid i {
+    background-color: #EF4444 !important;
+    color: #FFFFFF !important;
+}
+
+.btn-mydanger-solid:hover,
+.btn-mydanger-solid:hover i {
+    background-color: #DC2626 !important;
+}
+
+.btn-mysuccess,
+.btn-mysuccess i {
+    background-color: #DCFCE7 !important;
+    color: #15803D !important;
+}
+
+.btn-mysuccess:hover,
+.btn-mysuccess:hover i {
+    background-color: #BBF7D0 !important;
+    color: #166534 !important;
+}
+
+.btn-mysuccess-solid,
+.btn-mysuccess-solid i {
+    background-color: #22C55E !important;
+    color: #FFFFFF !important;
+}
+
+.btn-mysuccess-solid:hover,
+.btn-mysuccess-solid:hover i {
+    background-color: #16A34A !important;
+}
+
+.btn-mylight,
+.btn-mylight i {
+    background-color: #EFF2F5 !important;
+    color: #7E8299 !important;
+}
+
+.btn-mylight:hover,
+.btn-mylight:hover i {
+    background-color: #E4E6EF !important;
+    color: #5E6278 !important;
+}
+
+.btn-mylighten,
+.btn-mylighten i,
+.page-item:not(.active):not(.offset):not(.disabled) .page-link-myprimary {
+    background-color: transparent !important;
+    color: #7E8299 !important;
+}
+
+.btn-mylighten:hover,
+.btn-mylighten:hover i,
+.page-item:not(.active):not(.offset):not(.disabled) .page-link-myprimary:hover {
+    background-color: #EFF2F5 !important;
+    color: #5E6278 !important;
+}
+
+.page-item:not(.disabled) .page-link-myprimary i {
+    background-color: #7E8299 !important;
+}
+
+.page-item:not(.disabled) .page-link-myprimary:hover i {
+    background-color: #5E6278 !important;
+}
+
+.bg-myprimary {
+    background-color: #4171b6 !important;
+}
+
+.bg-hover-myprimary:hover {
+    background-color: #325c9e !important;
+}
+
+.bg-mysecondary {
+    background-color: #E7EDF7 !important;
+}
+
+.bg-mydanger {
+    background-color: #FEE2E2 !important;
+}
+
+.bg-mydanger-solid {
+    background-color: #EF4444 !important;
+}
+
+.bg-mysuccess {
+    background-color: #DCFCE7 !important;
+}
+
+.text-myprimary {
+    color: #4171b6 !important;
+}
+
+.text-mysecondary,
+.btn-link-myprimary,
+.btn-link-myprimary i,
+.btn-active-color-myprimary:hover i {
+    color: #4171B6 !important;
+}
+
+.accordion.accordion-icon-toggle .collapsed .accordion-icon i {
+    color: #b5b5c3 !important;
+}
+
+.btn-link-myprimary:hover {
+    color: #325C9E !important;
+}
+
+.text-mydanger,
+.btn-link-mydanger {
+    color: #EF4444 !important;
+}
+
+.border-mydanger {
+    border-color: #FEE2E2 !important;
+}
+
+.btn-link-mydanger:hover {
+    color: #DC2626 !important;
+}
+
+.text-mysuccess,
+.btn-link-mysuccess {
+    color: #22C55E !important;
+}
+
+.btn-link-mysuccess:hover {
+    color: #16A34A !important;
+}
+
+.swal-custom-icon .swal2-icon.swal2-question,
+.swal-custom-icon .swal2-icon.swal2-info {
+    border-color: #4171B6; 
+    color: #4171B6;
+}
+
+.swal-custom-icon .swal2-icon.swal2-warning {
+    border-color: #4171B6; 
+    color: #4171B6;
+}
+
+.swal-custom-icon .swal2-icon.swal2-error {
+    border-color: #EF4444; 
+    color: #EF4444;
+}
+
+.swal-custom-icon .swal2-icon.swal2-success {
+    border-color: #22C55E; 
+    color: #22C55E;
+}
+
+.menu-link-mysecondary:hover {
+    background-color: #EFF2F5 !important;
+}
+
+.menu-link-mysecondary .menu-icon > i,
+.menu-link-mysecondary .menu-title {
+    color: #7E8299 !important;
+}
+
+.menu-link-mysecondary:hover .menu-icon > i,
+.menu-link-mysecondary:hover .menu-title,
+.flatpickr-day:hover {
+    color: #5E6278 !important;
+}
+
+.menu-link-mysecondary.active {
+    background-color: #E7EDF7 !important;
+}
+
+.menu-link-mysecondary.active:hover {
+    background-color: #CAD8ED !important;
+}
+
+.menu-link-mysecondary.active .menu-icon > i,
+.menu-link-mysecondary.active .menu-title {
+    color: #1E4DAF !important;
+}
+
+.menu-link-mysecondary.active:hover .menu-icon > i,
+.menu-link-mysecondary.active:hover .menu-title {
+    color: #253E67 !important;
+}
+
+.btn.btn-active-myprimary.active,
+.btn.btn-active-myprimary:hover.active:hover {
+    border-color: #FCD34D !important;
+    background-color: #FCD34D !important;
+    color: #451A03 !important;
+}
+
+
+.btn.btn-active-myprimary:hover:not(.btn-active) {
+    border-color: #FEF3C7 !important;
+    background-color: #FEF3C7 !important;
+    color: #B45309 !important;
+}
+
+.form-check-input:checked,
+.form-check-custom.form-check-solid .form-check-input:checked {
+    background-color: #4171B6;
+    border-color: #4171B6;
+}
+
+.accordion.accordion-icon-toggle .accordion-icon i {
+    color: #4171B6;
+}
+
+.select2-selection--single {
+    height: auto !important;
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+    padding: 0;
+}
+
+.select2-container--bootstrap5 .select2-dropdown .select2-results__option.select2-results__option--highlighted {
+    background-color: #F4F6FB !important;
+    color: #325C9E !important;
+}
+
+.select2-container--bootstrap5 .select2-dropdown .select2-results__option.select2-results__option--selected {
+    background-color: #E7EDF7 !important;
+    color: #325C9E !important;
+}
+
+.select2-container--bootstrap5 .select2-dropdown .select2-results__option.select2-results__option--selected:after {
+    background-color: #325C9E !important;
+}
+
+.select2-container--bootstrap5 .select2-selection__clear:hover {
+    background-color: #325C9E !important;
+}
