@@ -1,0 +1,51 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local environment files
+.env
+.env.local
+.env.*.local
+
+# Dependencies that will be installed in container
+node_modules/
+vendor/
+
+# Build artifacts
+public/build/
+public/hot
+
+# Laravel specific
+storage/app/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+bootstrap/cache/*
+
+# Testing
+tests/
+phpunit.xml
+
+# Docker files (except the ones we need)
+docker-compose.yml
+docker-compose.*.yml
+
+# Temporary files
+*.tmp
+*.temp 
