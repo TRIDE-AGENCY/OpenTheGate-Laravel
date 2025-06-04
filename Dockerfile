@@ -83,4 +83,16 @@ RUN chmod +x /start.sh /start-zeabur.sh
 EXPOSE 80
 
 # Use Zeabur-optimized startup script
-CMD ["/start-zeabur.sh"] 
+CMD ["/start-zeabur.sh"]
+
+# Database connection
+DB_CONNECTION=mysql
+DB_HOST=43.153.199.217
+DB_PORT=31465
+DB_DATABASE=db_bss_parking
+DB_USERNAME=root
+DB_PASSWORD=8c1Dk5ifwQmvF90s4oNV67tOIpYd3rR2
+
+# Or try internal connection
+DB_HOST=mysql.zeabur.internal
+DB_PORT=3306 
