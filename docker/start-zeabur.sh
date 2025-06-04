@@ -148,10 +148,21 @@ EOF
 echo "🔍 Testing PHP-FPM..."
 php-fpm -t || echo "PHP-FPM configuration test failed"
 
+# Make sure PHP-FPM socket is ready
+echo "🔍 Checking PHP-FPM socket..."
+netstat -an | grep 9000 || echo "PHP-FPM not listening on port 9000 yet"
+
 # Test if Laravel routes work
 echo "🔍 Testing Laravel..."
 cd /var/www/html
 php artisan route:list || echo "Laravel route listing failed"
+
+# Ensure proper permissions for Laravel
+echo "🔐 Final permission check..."
+chown -R www-data:www-data /var/www/html
+find /var/www/html -type f -exec chmod 644 {} \;
+find /var/www/html -type d -exec chmod 755 {} \;
+chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Start web services
 echo "🎯 Starting nginx and PHP-FPM..."
