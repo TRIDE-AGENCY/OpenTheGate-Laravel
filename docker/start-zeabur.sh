@@ -25,6 +25,7 @@ APP_ENV=production
 APP_KEY=
 APP_DEBUG=false
 APP_URL=https://bss-parking-tride.zeabur.app
+FORCE_HTTPS=true
 
 LOG_CHANNEL=stack
 LOG_LEVEL=error
