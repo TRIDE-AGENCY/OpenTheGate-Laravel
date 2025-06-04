@@ -75,10 +75,12 @@ RUN mkdir -p /var/log/supervisor \
 # Generate optimized autoloader
 RUN composer dump-autoload --optimize
 
-# Create startup script
+# Create startup scripts
 COPY docker/start.sh /start.sh
-RUN chmod +x /start.sh
+COPY docker/start-zeabur.sh /start-zeabur.sh
+RUN chmod +x /start.sh /start-zeabur.sh
 
 EXPOSE 80
 
-CMD ["/start.sh"] 
+# Use Zeabur-optimized startup script
+CMD ["/start-zeabur.sh"] 

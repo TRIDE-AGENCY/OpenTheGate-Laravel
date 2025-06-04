@@ -7,10 +7,9 @@ echo "🚀 Starting Laravel application..."
 # Set environment variables if not already set
 export DB_HOST=${MYSQL_HOST}
 export DB_PORT=${MYSQL_PORT}
-export DB_DATABASE=db_bss_parking
+export DB_DATABASE=zeabur
 export DB_USERNAME=root
 export DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
-export MYSQL_DATABASE=db_bss_parking
 
 # Enhanced database connection check with timeout
 echo "⏳ Waiting for database connection..."
@@ -40,6 +39,20 @@ if [ $COUNTER -ge $TIMEOUT ]; then
     # Try to show more debugging info
     nc -z "$DB_HOST" "$DB_PORT" && echo "✅ Port $DB_PORT is open" || echo "❌ Cannot connect to port $DB_PORT"
     exit 1
+fi
+
+# Import the database schema if tables don't exist
+echo "🗄️ Checking database schema..."
+TABLE_COUNT=$(mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DB_DATABASE';" "$DB_DATABASE" 2>/dev/null | tail -1)
+
+if [ "$TABLE_COUNT" = "0" ] || [ -z "$TABLE_COUNT" ]; then
+    echo "📥 Importing database schema..."
+    if [ -f "/var/www/html/db_bss_parking.sql" ]; then
+        mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" < /var/www/html/db_bss_parking.sql
+        echo "✅ Database schema imported successfully!"
+    else
+        echo "⚠️ No SQL file found, running migrations instead..."
+    fi
 fi
 
 # Run Laravel setup commands
