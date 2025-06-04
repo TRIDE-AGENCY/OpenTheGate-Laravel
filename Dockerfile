@@ -83,12 +83,4 @@ RUN chmod +x /start.sh /start-zeabur.sh
 EXPOSE 80
 
 # Use Zeabur-optimized startup script
-CMD ["/start-zeabur.sh"]
-
-# Add environment variables
-ENV DB_CONNECTION=mysql
-ENV DB_HOST=mysql.zeabur.internal
-ENV DB_PORT=3306
-ENV DB_DATABASE=db_bss_parking
-ENV DB_USERNAME=root
-ENV DB_PASSWORD=8c1Dk5ifwQmvF90s4oNV67tOIpYd3rR2 
+CMD ["/start-zeabur.sh"] 
