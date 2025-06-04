@@ -45,6 +45,11 @@ EOF
 echo "🔑 Generating application key..."
 php artisan key:generate --force
 
+# Verify Laravel configuration
+echo "🔍 Verifying Laravel configuration..."
+php artisan config:show app.key || echo "App key check failed"
+php artisan env || echo "Environment check failed"
+
 # Create storage link
 echo "🔗 Creating storage link..."
 php artisan storage:link --force || true
@@ -130,6 +135,7 @@ cat > /var/www/html/public/index.html << 'EOF'
     <p>Static HTML is working! PHP Laravel should load soon...</p>
     <p><a href="/test.php">Test PHP</a></p>
     <p><a href="/phpinfo.php">PHP Info</a></p>
+    <p><a href="/debug.php">Debug Laravel</a></p>
 </body>
 </html>
 EOF
@@ -142,6 +148,32 @@ EOF
 cat > /var/www/html/public/test.php << 'EOF'
 <?php
 echo "PHP is working! " . date('Y-m-d H:i:s');
+echo "<br>Memory limit: " . ini_get('memory_limit');
+echo "<br>Error reporting: " . error_reporting();
+echo "<br>Display errors: " . ini_get('display_errors');
+EOF
+
+cat > /var/www/html/public/debug.php << 'EOF'
+<?php
+echo "<h2>Laravel Debug</h2>";
+echo "PHP Version: " . phpversion() . "<br>";
+echo "Current directory: " . __DIR__ . "<br>";
+echo "Laravel path: " . dirname(__DIR__) . "<br>";
+
+// Check if Laravel can load
+try {
+    require_once __DIR__ . '/../vendor/autoload.php';
+    echo "✅ Composer autoload: SUCCESS<br>";
+    
+    $app = require_once __DIR__ . '/../bootstrap/app.php';
+    echo "✅ Laravel bootstrap: SUCCESS<br>";
+    
+    echo "App instance: " . get_class($app) . "<br>";
+    
+} catch (Exception $e) {
+    echo "❌ Laravel Error: " . $e->getMessage() . "<br>";
+    echo "File: " . $e->getFile() . " Line: " . $e->getLine() . "<br>";
+}
 EOF
 
 # Test PHP-FPM is running
