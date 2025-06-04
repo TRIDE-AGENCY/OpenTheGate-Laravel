@@ -3,7 +3,9 @@ FROM node:18-alpine AS node-builder
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+
+# Install Node dependencies with better error handling
+RUN npm ci --only=production --no-audit --no-fund
 
 COPY . .
 RUN npm run build
@@ -11,7 +13,7 @@ RUN npm run build
 # PHP Production Stage for Zeabur
 FROM php:8.3-fpm-alpine
 
-# Install system dependencies
+# Install system dependencies in one layer with cleanup
 RUN apk add --no-cache \
     git \
     curl \
@@ -27,11 +29,13 @@ RUN apk add --no-cache \
     supervisor \
     sqlite \
     sqlite-dev \
-    netcat-openbsd
+    netcat-openbsd \
+    bash \
+    && rm -rf /var/cache/apk/*
 
 # Install PHP extensions including SQLite
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
+    && docker-php-ext-install -j$(nproc) \
     pdo_mysql \
     pdo_sqlite \
     sqlite3 \
@@ -45,14 +49,27 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Set composer optimizations
+ENV COMPOSER_MEMORY_LIMIT=-1
+ENV COMPOSER_PROCESS_TIMEOUT=600
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 # Create app directory
 WORKDIR /var/www/html
 
-# Copy composer files
+# Copy composer files first for better caching
 COPY composer.json composer.lock ./
 
-# Install composer dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+# Install composer dependencies with better optimization
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-scripts \
+    --no-progress \
+    --prefer-dist \
+    --no-interaction \
+    --classmap-authoritative \
+    && composer clear-cache
 
 # Copy application code
 COPY . .
@@ -80,17 +97,17 @@ RUN mkdir -p /var/log/supervisor \
     && mkdir -p /var/www/html/storage/app/public
 
 # Generate optimized autoloader
-RUN composer dump-autoload --optimize
+RUN composer dump-autoload --optimize --classmap-authoritative
 
 # Create startup script
-COPY docker/start.sh /start.sh
-RUN chmod +x /start.sh
+COPY docker/start-zeabur.sh /start-zeabur.sh
+RUN chmod +x /start-zeabur.sh
 
-# Set default to use SQLite for Zeabur
-ENV USE_SQLITE=true
+# Set environment variables for production
 ENV APP_ENV=production
 ENV APP_DEBUG=false
+ENV LOG_LEVEL=error
 
 EXPOSE 80
 
-CMD ["/start.sh"] 
+CMD ["/start-zeabur.sh"] 

@@ -4,12 +4,12 @@
 
 echo "🚀 Starting BSS Parking System on Zeabur..."
 
-# Set environment variables
-export DB_HOST=${MYSQL_HOST}
-export DB_PORT=${MYSQL_PORT:-3306}
-export DB_DATABASE=${MYSQL_DATABASE:-db_bss_parking}
-export DB_USERNAME=${MYSQL_USERNAME:-root}
-export DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+# Set environment variables with Zeabur MySQL configuration
+export DB_HOST="43.153.199.217"
+export DB_PORT="32628"
+export DB_DATABASE="zeabur"
+export DB_USERNAME="root"
+export DB_PASSWORD="E384qheG5ioSw6fbHZ01kDxa9uKQ2cj7"
 
 echo "🔍 Database configuration:"
 echo "Host: $DB_HOST"
@@ -85,6 +85,7 @@ if [ "$DATABASE_READY" = true ]; then
     if [ "$TABLE_COUNT" = "0" ] || [ -z "$TABLE_COUNT" ]; then
         echo "📥 Database is empty, importing schema..."
         if [ -f "/var/www/html/db_bss_parking.sql" ]; then
+            # First create the database schema, then import
             MYSQL_PWD="$DB_PASSWORD" mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" "$DB_DATABASE" < /var/www/html/db_bss_parking.sql
             if [ $? -eq 0 ]; then
                 echo "✅ Database schema imported successfully!"
