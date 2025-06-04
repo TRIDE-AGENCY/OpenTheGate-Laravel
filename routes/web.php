@@ -4,6 +4,11 @@ use App\Http\Controllers\Admin\HistoryController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+// Root route - redirect to login
+Route::get('/', function () {
+    return redirect('/login');
+});
+
 Route::post('/admin/logout', function () {
     Auth::guard('web')->logout();
     request()->session()->forget('web');
