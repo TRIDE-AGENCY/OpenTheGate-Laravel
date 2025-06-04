@@ -26,6 +26,7 @@ APP_KEY=
 APP_DEBUG=false
 APP_URL=https://bss-parking-tride.zeabur.app
 FORCE_HTTPS=true
+ASSET_URL=https://bss-parking-tride.zeabur.app
 
 LOG_CHANNEL=stack
 LOG_LEVEL=error
@@ -45,6 +46,14 @@ EOF
 # Generate app key
 echo "🔑 Generating application key..."
 php artisan key:generate --force
+
+# Force HTTPS for all URLs
+echo "🔒 Configuring HTTPS..."
+php artisan tinker --execute="
+\Illuminate\Support\Facades\URL::forceScheme('https');
+\Illuminate\Support\Facades\URL::forceRootUrl('https://bss-parking-tride.zeabur.app');
+echo 'HTTPS forced for all URLs';
+"
 
 # Verify Laravel configuration
 echo "🔍 Verifying Laravel configuration..."
