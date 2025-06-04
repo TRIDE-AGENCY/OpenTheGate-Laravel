@@ -117,6 +117,42 @@ echo "🔐 Setting file permissions..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
 chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache || true
 
+# Create a simple PHP test file
+echo "🧪 Creating test files..."
+cat > /var/www/html/public/index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BSS Parking System - Loading</title>
+</head>
+<body>
+    <h1>BSS Parking System</h1>
+    <p>Static HTML is working! PHP Laravel should load soon...</p>
+    <p><a href="/test.php">Test PHP</a></p>
+    <p><a href="/phpinfo.php">PHP Info</a></p>
+</body>
+</html>
+EOF
+
+cat > /var/www/html/public/phpinfo.php << 'EOF'
+<?php
+phpinfo();
+EOF
+
+cat > /var/www/html/public/test.php << 'EOF'
+<?php
+echo "PHP is working! " . date('Y-m-d H:i:s');
+EOF
+
+# Test PHP-FPM is running
+echo "🔍 Testing PHP-FPM..."
+php-fpm -t || echo "PHP-FPM configuration test failed"
+
+# Test if Laravel routes work
+echo "🔍 Testing Laravel..."
+cd /var/www/html
+php artisan route:list || echo "Laravel route listing failed"
+
 # Start web services
 echo "🎯 Starting nginx and PHP-FPM..."
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf 
