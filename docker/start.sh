@@ -10,7 +10,7 @@ export DB_PORT=${MYSQL_PORT}
 export DB_DATABASE=db_bss_parking
 export DB_USERNAME=root
 export DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
-export MYSQL_DATABASE=zeabur
+export MYSQL_DATABASE=db_bss_parking
 
 # Enhanced database connection check with timeout
 echo "⏳ Waiting for database connection..."
