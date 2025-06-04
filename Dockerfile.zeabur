@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install Node dependencies with better error handling
-RUN npm ci --only=production --no-audit --no-fund
+RUN npm install --no-audit --no-fund
 
 COPY . .
 RUN npm run build

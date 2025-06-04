@@ -40,7 +40,7 @@ if [ $? -ne 0 ]; then
 fi
 
 print_status "Updating NPM dependencies..."
-npm ci --only=production --no-audit --no-fund
+npm install --no-audit --no-fund
 
 if [ $? -ne 0 ]; then
     print_error "NPM install failed!"

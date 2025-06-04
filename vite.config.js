@@ -31,15 +31,13 @@ export default defineConfig({
         },
         chunkSizeWarningLimit: 1600,
         assetsInlineLimit: 4096,
-        minify: 'terser',
-        terserOptions: {
-            compress: {
-                drop_console: true,
-                drop_debugger: true
-            }
-        }
+        minify: 'esbuild',
+        target: 'es2015'
     },
     optimizeDeps: {
         include: ['vue', '@inertiajs/vue3', 'axios']
+    },
+    esbuild: {
+        drop: ['console', 'debugger']
     }
 });
