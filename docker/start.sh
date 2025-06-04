@@ -5,10 +5,12 @@
 echo "🚀 Starting Laravel application..."
 
 # Set environment variables if not already set
-export DB_HOST=${DB_HOST:-mysql}
-export DB_PORT=${DB_PORT:-3306}
-export DB_DATABASE=${DB_DATABASE:-db_bss_parking}
-export DB_USERNAME=${DB_USERNAME:-laravel}
+export DB_HOST=${MYSQL_HOST}
+export DB_PORT=${MYSQL_PORT}
+export DB_DATABASE=db_bss_parking
+export DB_USERNAME=root
+export DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+export MYSQL_DATABASE=zeabur
 
 # Enhanced database connection check with timeout
 echo "⏳ Waiting for database connection..."
@@ -51,7 +53,7 @@ APP_NAME="BSS Parking"
 APP_ENV=production
 APP_KEY=
 APP_DEBUG=false
-APP_URL=${APP_URL:-http://localhost}
+APP_URL=https://bss-parking-tride.zeabur.app
 
 LOG_CHANNEL=stack
 LOG_LEVEL=error
