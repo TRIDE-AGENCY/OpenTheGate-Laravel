@@ -42,14 +42,24 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Set composer memory limit and timeout
+ENV COMPOSER_MEMORY_LIMIT=-1
+ENV COMPOSER_PROCESS_TIMEOUT=600
+
 # Create app directory
 WORKDIR /var/www/html
 
 # Copy composer files
 COPY composer.json composer.lock ./
 
-# Install composer dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+# Install composer dependencies with optimizations
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-scripts \
+    --no-progress \
+    --prefer-dist \
+    --no-interaction
 
 # Copy application code
 COPY . .
