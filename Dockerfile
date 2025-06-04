@@ -24,7 +24,9 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     libzip-dev \
     nginx \
-    supervisor
+    supervisor \
+    mysql-client \
+    netcat-openbsd
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
