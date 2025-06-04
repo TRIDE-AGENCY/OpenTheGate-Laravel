@@ -108,6 +108,6 @@ ENV APP_ENV=production
 ENV APP_DEBUG=false
 ENV LOG_LEVEL=error
 
-EXPOSE 5555
+EXPOSE 5555 8080
 
 CMD ["/start-zeabur.sh"] 
