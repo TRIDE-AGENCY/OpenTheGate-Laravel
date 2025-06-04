@@ -60,10 +60,6 @@ echo "🔍 Verifying Laravel configuration..."
 php artisan config:show app.key || echo "App key check failed"
 php artisan env || echo "Environment check failed"
 
-# Create storage link
-echo "🔗 Creating storage link..."
-php artisan storage:link --force || true
-
 # Test database connection
 echo "⏳ Testing database connection..."
 DATABASE_READY=false
@@ -98,22 +94,30 @@ if [ "$DATABASE_READY" = true ]; then
     TABLE_COUNT=$(MYSQL_PWD="$DB_PASSWORD" mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DB_DATABASE';" "$DB_DATABASE" 2>/dev/null | tail -1)
     
     if [ "$TABLE_COUNT" = "0" ] || [ -z "$TABLE_COUNT" ]; then
-        echo "📥 Database is empty, importing schema..."
+        echo "�� Database is empty, setting up from scratch..."
+        
+        # Try to import SQL file first
         if [ -f "/var/www/html/db_bss_parking.sql" ]; then
-            # First create the database schema, then import
+            echo "📥 Importing database schema from SQL file..."
             MYSQL_PWD="$DB_PASSWORD" mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" "$DB_DATABASE" < /var/www/html/db_bss_parking.sql
             if [ $? -eq 0 ]; then
                 echo "✅ Database schema imported successfully!"
             else
-                echo "⚠️ Database import failed, running migrations..."
-                php artisan migrate --force || echo "Migration also failed"
+                echo "⚠️ SQL import failed, using Laravel migrations..."
+                php artisan migrate --force
+                echo "🌱 Running database seeders..."
+                php artisan db:seed --class="DatabaseSeeder" --force || echo "Seeding failed or no seeders found"
             fi
         else
-            echo "⚠️ SQL file not found, running migrations..."
-            php artisan migrate --force || echo "Migration failed"
+            echo "⚠️ SQL file not found, using Laravel setup..."
+            echo "🔄 Running database migrations..."
+            php artisan migrate --force
+            echo "🌱 Running database seeders..."
+            php artisan db:seed --class="DatabaseSeeder" --force || echo "Seeding failed or no seeders found"
         fi
     else
         echo "✅ Database tables already exist ($TABLE_COUNT tables)"
+        echo "🔄 Running migrations to ensure up-to-date schema..."
         php artisan migrate --force || echo "Migration check failed"
     fi
 else
@@ -121,8 +125,8 @@ else
     echo "You may need to set up the database manually later."
 fi
 
-# Optimize Laravel
-echo "⚡ Optimizing Laravel..."
+# Optimize Laravel (as per README)
+echo "⚡ Optimizing Laravel (README commands)..."
 php artisan config:cache || true
 php artisan route:cache || true
 php artisan view:cache || true
