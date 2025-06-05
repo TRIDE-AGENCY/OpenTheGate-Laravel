@@ -7,7 +7,7 @@ echo "🚀 Starting BSS Parking System on Zeabur..."
 # Set environment variables with Zeabur MySQL configuration
 export DB_HOST="43.153.199.217"
 export DB_PORT="32628"
-export DB_DATABASE="zeabur"
+export DB_DATABASE="db_bss_parking"
 export DB_USERNAME="root"
 export DB_PASSWORD="E384qheG5ioSw6fbHZ01kDxa9uKQ2cj7"
 
@@ -68,18 +68,23 @@ DATABASE_READY=false
 for attempt in 1 2 3 4 5; do
     echo "Attempt $attempt/5..."
     
-    # Method 1: Using MYSQL_PWD environment variable
-    if MYSQL_PWD="$DB_PASSWORD" mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" -e "SELECT 1;" "$DB_DATABASE" >/dev/null 2>&1; then
-        echo "✅ Database connection successful!"
-        DATABASE_READY=true
-        break
-    fi
-    
-    # Method 2: Using --password flag
-    if mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" --password="$DB_PASSWORD" -e "SELECT 1;" "$DB_DATABASE" >/dev/null 2>&1; then
-        echo "✅ Database connection successful!"
-        DATABASE_READY=true
-        break
+    # First ensure the database exists
+    if MYSQL_PWD="$DB_PASSWORD" mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" -e "CREATE DATABASE IF NOT EXISTS \`$DB_DATABASE\`;" 2>/dev/null; then
+        echo "✅ Database '$DB_DATABASE' exists or created!"
+        
+        # Method 1: Using MYSQL_PWD environment variable
+        if MYSQL_PWD="$DB_PASSWORD" mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" -e "SELECT 1;" "$DB_DATABASE" >/dev/null 2>&1; then
+            echo "✅ Database connection successful!"
+            DATABASE_READY=true
+            break
+        fi
+        
+        # Method 2: Using --password flag
+        if mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" --password="$DB_PASSWORD" -e "SELECT 1;" "$DB_DATABASE" >/dev/null 2>&1; then
+            echo "✅ Database connection successful!"
+            DATABASE_READY=true
+            break
+        fi
     fi
     
     echo "⏳ Connection failed, waiting 5 seconds..."
