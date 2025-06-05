@@ -130,6 +130,24 @@ else
     echo "You may need to set up the database manually later."
 fi
 
+# Laravel setup as per README
+echo "🔗 Creating storage link..."
+php artisan storage:link --force || true
+
+# Ensure proper storage permissions for images
+echo "📸 Setting up image storage..."
+mkdir -p /var/www/html/storage/app/public/images
+mkdir -p /var/www/html/storage/app/public/vehicles
+mkdir -p /var/www/html/storage/app/public/plates
+mkdir -p /var/www/html/public/storage
+chown -R www-data:www-data /var/www/html/storage/app/public
+chmod -R 755 /var/www/html/storage/app/public
+
+# Create storage link again to ensure it works
+rm -f /var/www/html/public/storage
+ln -sf /var/www/html/storage/app/public /var/www/html/public/storage
+echo "✅ Storage link created for images"
+
 # Optimize Laravel (as per README)
 echo "⚡ Optimizing Laravel (README commands)..."
 php artisan config:cache || true
