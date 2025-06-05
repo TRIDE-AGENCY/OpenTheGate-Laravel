@@ -132,21 +132,63 @@ fi
 
 # Laravel setup as per README
 echo "🔗 Creating storage link..."
-php artisan storage:link --force || true
+php artisan storage:link --force
 
 # Ensure proper storage permissions for images
-echo "📸 Setting up image storage..."
+echo "📸 Setting up image storage directories..."
 mkdir -p /var/www/html/storage/app/public/images
 mkdir -p /var/www/html/storage/app/public/vehicles
 mkdir -p /var/www/html/storage/app/public/plates
 mkdir -p /var/www/html/public/storage
+
+# Remove any existing symlink first
+echo "🔗 Recreating storage symlink..."
+rm -f /var/www/html/public/storage
+
+# Create the storage link manually and verify
+ln -sf /var/www/html/storage/app/public /var/www/html/public/storage
+
+# Verify the storage link was created
+if [ -L "/var/www/html/public/storage" ]; then
+    echo "✅ Storage symlink created successfully"
+    echo "🔍 Symlink target: $(readlink /var/www/html/public/storage)"
+else
+    echo "❌ Failed to create storage symlink"
+fi
+
+# Set proper permissions
 chown -R www-data:www-data /var/www/html/storage/app/public
 chmod -R 755 /var/www/html/storage/app/public
 
-# Create storage link again to ensure it works
-rm -f /var/www/html/public/storage
-ln -sf /var/www/html/storage/app/public /var/www/html/public/storage
-echo "✅ Storage link created for images"
+# Also ensure public/storage has correct permissions
+chown -h www-data:www-data /var/www/html/public/storage
+chmod 755 /var/www/html/public/storage
+
+# Create a test image to verify storage works
+echo "🖼️ Creating test image for verification..."
+cat > /var/www/html/storage/app/public/test-image.txt << 'EOF'
+This is a test file to verify storage access.
+If you can access this via /storage/test-image.txt, storage is working!
+EOF
+
+# List storage contents for debugging
+echo "📁 Storage directory contents:"
+ls -la /var/www/html/storage/app/public/ || echo "Cannot list storage/app/public"
+echo "📁 Public storage link:"
+ls -la /var/www/html/public/storage || echo "Cannot list public/storage"
+
+# Test if we can access storage via web
+echo "🌐 Testing storage access..."
+if [ -f "/var/www/html/storage/app/public/test-image.txt" ]; then
+    echo "✅ Test file exists in storage/app/public"
+fi
+if [ -f "/var/www/html/public/storage/test-image.txt" ]; then
+    echo "✅ Test file accessible via public/storage symlink"
+else
+    echo "❌ Test file NOT accessible via public/storage symlink"
+fi
+
+echo "✅ Storage link configuration completed"
 
 # Optimize Laravel (as per README)
 echo "⚡ Optimizing Laravel (README commands)..."
