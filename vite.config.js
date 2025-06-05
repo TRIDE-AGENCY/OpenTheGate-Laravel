@@ -19,4 +19,25 @@ export default defineConfig({
             },
         })
     ],
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['vue', '@inertiajs/vue3'],
+                    charts: ['chart.js', 'apexcharts', 'vue3-apexcharts'],
+                    ui: ['sweetalert2', 'select2', 'flatpickr', 'jquery']
+                }
+            }
+        },
+        chunkSizeWarningLimit: 1600,
+        assetsInlineLimit: 4096,
+        minify: 'esbuild',
+        target: 'es2015'
+    },
+    optimizeDeps: {
+        include: ['vue', '@inertiajs/vue3', 'axios']
+    },
+    esbuild: {
+        drop: ['console', 'debugger']
+    }
 });
