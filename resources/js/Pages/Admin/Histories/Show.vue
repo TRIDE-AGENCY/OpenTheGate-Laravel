@@ -132,7 +132,8 @@
                                             <div class="d-flex align-items-center">
                                                 <i class="ri-crosshair-2-line fs-4 me-2 text-mysecondary"></i>
                                                 <span class="fw-semibold fs-4 text-mysecondary">Akurasi:
-                                                    {{ Number(history . confidence_out) * 100 . toFixed(2) }}%</span>
+                                                    {{ (Number(history.confidence_out) * 100).toFixed(2) }}%
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
