@@ -1,6 +1,6 @@
 # BSS Parking
 
-**Pengelolaan Parkir Otomatis dengan YOLOv11n dan EasyOCR**
+**Pengelolaan Parkir Otomatis dengan YOLOv8 dan GPT-4o Vision Models.**
 
 ![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 ![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white)
