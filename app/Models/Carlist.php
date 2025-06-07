@@ -23,4 +23,9 @@ class Carlist extends Model
     {
         return $this->belongsTo(Rate::class);
     }
+
+    public function histories()
+    {
+        return $this->hasMany(History::class);
+    }
 }

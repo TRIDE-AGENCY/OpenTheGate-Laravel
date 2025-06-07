@@ -1,4 +1,5 @@
 # BSS Parking
+
 **Pengelolaan Parkir Otomatis dengan YOLOv11n dan EasyOCR**
 
 ![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
@@ -13,10 +14,10 @@
 
 Pastikan Anda memiliki versi berikut terinstal di sistem Anda:
 
-* **Composer:** `2.8.4`
-* **PHP:** `8.3.15`
-* **MySQL:** `8.0.30`
-* **Node.js** & **npm**
+-   **Composer:** `2.8.4`
+-   **PHP:** `8.3.15`
+-   **MySQL:** `8.0.30`
+-   **Node.js** & **npm**
 
 ---
 
@@ -25,30 +26,36 @@ Pastikan Anda memiliki versi berikut terinstal di sistem Anda:
 Ikuti langkah-langkah mudah ini untuk menjalankan proyek secara lokal:
 
 1.  **Clone repositori:**
+
     ```bash
     git clone [https://github.com/TRIDE-AGENCY/OpenTheGate-Website.git]
     ```
 
 2.  **Instal dependensi:**
+
     ```bash
     composer install
     npm install
     ```
 
 3.  **Siapkan konfigurasi:**
+
     ```bash
     cp .env.example .env
     php artisan key:generate
     ```
-    * **Penting:** Edit file `.env` dan atur detail koneksi database Anda (`DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`). Pastikan database yang Anda tentukan sudah dibuat di MySQL.
+
+    -   **Penting:** Edit file `.env` dan atur detail koneksi database Anda (`DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`). Pastikan database yang Anda tentukan sudah dibuat di MySQL.
 
 4.  **Siapkan database & data awal:**
+
     ```bash
     php artisan migrate
     php artisan db:seed --class="DatabaseSeeder"
     ```
 
 5.  **Optimasi & link storage:**
+
     ```bash
     php artisan storage:link
     php artisan config:cache
@@ -57,6 +64,7 @@ Ikuti langkah-langkah mudah ini untuk menjalankan proyek secara lokal:
     ```
 
 6.  **Kompilasi aset frontend:**
+
     ```bash
     npm run dev
     # Gunakan npm run build untuk produksi

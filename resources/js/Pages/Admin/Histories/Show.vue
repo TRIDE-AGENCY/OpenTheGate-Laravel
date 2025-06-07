@@ -67,7 +67,39 @@
                                     </div>
                                     <div class="d-flex justify-content-between w-100">
                                         <div class="fs-4 text-gray-700">Durasi Parkir</div>
-                                        <div class="fs-4 fw-bold">{{ calculateDuration(history.gate_in, history.gate_out) ?? '-' }}</div>
+                                        <div class="fs-4 fw-bold">
+                                            {{ calculateDuration(history . gate_in, history . gate_out) ?? '-' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="history.carlist" class="card border border-gray-300 mt-6">
+                                <div class="card-header h-auto border-bottom border-gray-300 p-6"
+                                    style="min-height: unset;">
+                                    <div class="card-title m-0 d-flex flex-column gap-2">
+                                        <h2>Kendaraan Terdaftar</h2>
+                                    </div>
+                                </div>
+                                <div class="card-body d-flex align-items-center flex-column gap-3 p-6">
+                                    <div class="d-flex justify-content-between w-100">
+                                        <div class="fs-4 text-gray-700">Nama Pengguna</div>
+                                        <div class="fs-4 fw-bold">{{ history . carlist . name }}</div>
+                                    </div>
+                                    <div class="d-flex justify-content-between w-100">
+                                        <div class="fs-4 text-gray-700">Status</div>
+                                        <div class="fs-4 fw-bold">
+                                            <span class="badge badge-lg"
+                                                :class="{
+                                                    'bg-mysuccess text-mysuccess': history.carlist
+                                                        .status === 'Y',
+                                                    'bg-mydanger text-mydanger': history.carlist.status === 'N'
+                                                }">
+                                                {{ history . carlist . status === 'Y' ? 'Whitelist' : 'Blacklist' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between w-100">
+                                        <div class="fs-4 text-gray-700">Keterangan</div>
+                                        <div class="fs-4 fw-bold">{{ history . carlist . description }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -102,7 +134,7 @@
                                             <div class="d-flex align-items-center">
                                                 <i class="ri-crosshair-2-line fs-4 me-2 text-mysecondary"></i>
                                                 <span class="fw-semibold fs-4 text-mysecondary">Akurasi:
-                                                    {{ Number(history . confidence_in) * 100 . toFixed(2) }}%</span>
+                                                    {{ (Number(history . confidence_in) * 100) . toFixed(2) }}%</span>
                                             </div>
                                         </div>
                                     </div>
@@ -132,21 +164,24 @@
                                             <div class="d-flex align-items-center">
                                                 <i class="ri-crosshair-2-line fs-4 me-2 text-mysecondary"></i>
                                                 <span class="fw-semibold fs-4 text-mysecondary">Akurasi:
-                                                    {{ (Number(history.confidence_out) * 100).toFixed(2) }}%
+                                                    {{ (Number(history . confidence_out) * 100) . toFixed(2) }}%
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="image-container"
-                                    style="position: relative; display: inline-block; max-width: 100%;">
+                                    style="position: relative; display: block; width: 100%; max-width: 500px;">
                                     <img ref="imgRefOut" class="img-fluid rounded-3 rounded-top-0"
                                         :src="`/storage/${history.image_out}`" alt="Gambar Pintu Keluar"
-                                        @load="onImageOutLoad" style="max-width: 100%; height: auto;" />
+                                        @load="onImageOutLoad"
+                                        style="width: 100%; height: auto; object-fit: contain;" />
+
                                     <div v-if="boxStyleOut" :style="boxStyleOut" class="bounding-box">
                                         <div class="box-label">{{ history . plate }}</div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>

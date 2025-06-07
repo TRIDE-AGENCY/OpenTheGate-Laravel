@@ -31,7 +31,7 @@ class HistoryController extends Controller
 
     public function show($id)
     {
-        $history = History::with(['rate.vehicle', 'rate.plate'])->findOrFail($id);
+        $history = History::with(['rate.vehicle', 'rate.plate', 'carlist'])->findOrFail($id);
 
         return inertia('Admin/Histories/Show', [
             'history' => $history,
@@ -44,115 +44,110 @@ class HistoryController extends Controller
             'image_in' => 'required|image|mimes:jpg,jpeg,png|max:20000',
         ], [
             'image_in.required' => 'Harap masukkan gambar terlebih dahulu.',
-            'image_in.image' => 'Gambar soal harus berupa file gambar.',
-            'image_in.mimes' => 'Gambar soal harus berekstensi jpg, jpeg, atau png.',
-            'image_in.max' => 'Ukuran gambar soal maksimal 2MB.',
+            'image_in.image' => 'Gambar harus berupa file gambar.',
+            'image_in.mimes' => 'Gambar harus berekstensi jpg, jpeg, atau png.',
+            'image_in.max' => 'Ukuran gambar maksimal 2MB.',
         ]);
 
-        $localPath = $request->file('image_in')->store('temp', 'public');
-        $fullPath = storage_path('app/public/' . $localPath);
+        // Simpan gambar langsung ke folder histories
+        $imageFile = $request->file('image_in');
+        $imagePath = $imageFile->store('histories', 'public');
 
-        $response = Http::attach(
-            'image',
-            file_get_contents($fullPath),
-            $request->file('image_in')->getClientOriginalName()
-        )->post('https://plates-numbers-ocr.zeabur.app/api/recognize');
+        // Kirim gambar ke API OCR
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . env('OCR_API_TOKEN'),
+        ])->attach(
+            'file',
+            file_get_contents($imageFile->getRealPath()),
+            $imageFile->getClientOriginalName()
+        )->asMultipart()->post('https://plates-number-recognition-v2.zeabur.app/recognize', [
+            'confidence_threshold' => 0.7
+        ]);
 
         if (!$response->successful()) {
+            Storage::disk('public')->delete($imagePath);
             return back()->withErrors(['image_in' => 'Gagal mengirim gambar ke API OCR.']);
         }
 
         $data = $response->json();
-
-        if (!$data['success'] || empty($data['detections'])) {
-            return back()->withErrors(['image_in' => 'Plat nomor tidak berhasil dikenali.']);
+        if (empty($data['detections'])) {
+            Storage::disk('public')->delete($imagePath);
+            return back()->withErrors(['image_in' => 'Plat nomor tidak dikenali.']);
         }
 
         $detection = $data['detections'][0];
-        $plate = str_replace(' ', '', $detection['raw_text']);
-        $rate = null;
+        $plate = str_replace(' ', '', $detection['license_plate']);
 
+        // ====== Cek apakah kendaraan terdaftar ======
         $today = Carbon::today();
         $car = Carlist::get()->first(function ($item) use ($plate, $today) {
-            $plateDb = str_replace(' ', '', $item->plate);
-            return $plateDb === $plate &&
-                $today->between(Carbon::parse($item->start_date), Carbon::parse($item->end_date));
+            $cleaned = fn($p) => strtoupper(str_replace([' ', '-'], '', $p));
+            return $cleaned($item->plate) === $cleaned($plate)
+                && $today->between(Carbon::parse($item->start_date), Carbon::parse($item->end_date));
         });
 
-        $is_blacklisted = false;
-        if ($car) {
-            if ($car->status === 'N') {
-                $is_blacklisted = true;
-            }
+        $rate = null;
+        $carlistId = $car?->id;
+        $is_blacklisted = $car?->status === 'N';
 
+        // ====== Cek tarif dari database atau API samsat ======
+        if ($car) {
             $rate = Rate::find($car->rate_id);
             if (!$rate) {
-                return back()->withErrors(['image_in' => "Plat $plate ditemukan di kendaraan terdaftar, tapi tarif parkirnya tidak ditemukan."]);
+                Storage::disk('public')->delete($imagePath);
+                return back()->withErrors(["image_in" => "Tarif untuk plat $plate tidak ditemukan."]);
             }
         } else {
-            $samsatResponse = Http::timeout(20)->get('https://samsat-api-v1.zeabur.app/check-plate', [
-                'plate' => $plate
-            ]);
+            $samsatResponse = Http::withHeaders([
+                'Authorization' => 'Bearer ' . env('SAMSAT_API_TOKEN'),
+            ])->get('https://samsat-api-v2.zeabur.app/check-plate', ['plate' => $plate]);
 
             $samsatData = $samsatResponse->json();
-
             $errorMessage = $samsatData['message'] ?? $samsatData['status'] ?? '';
+            $jenisKendaraanApi = $samsatData['jenis_kendaraan'] ?? '';
+            $jenisPlatApi = $samsatData['jenis_plat_nomor'] ?? '';
 
-            $unsupportedFormats = [
+            $unsupported = [
                 "Format plat dinas negara tidak didukung oleh database",
                 "Format plat diplomatik tidak didukung oleh database",
             ];
 
             if (
                 !$samsatResponse->successful() ||
-                !isset($samsatData['status']) ||
-                $samsatData['status'] !== 'Plat sudah terdaftar'
+                !in_array($samsatData['status'] ?? '', ['Plat sudah terdaftar', 'Format plat militer lama terdeteksi'])
             ) {
-                if (in_array($errorMessage, $unsupportedFormats)) {
+                if (!in_array($errorMessage, $unsupported)) {
+                    Storage::disk('public')->delete($imagePath);
+                    return back()->withErrors(["image_in" => "Plat $plate gagal diverifikasi. $errorMessage"]);
+                } else if (in_array($errorMessage, $unsupported)) {
                     $jenisKendaraanApi = "Mobil Penumpang";
                     $jenisPlatApi = $samsatData['jenis_plat_nomor'] ?? '';
-                } else {
-                    return back()->withErrors(['image_in' => "Plat $plate gagal diverifikasi. $errorMessage"]);
                 }
-            } else {
-                $jenisKendaraanApi = $samsatData['jenis_kendaraan'] ?? '';
-                $jenisPlatApi = $samsatData['jenis_plat_nomor'] ?? '';
             }
 
             $rate = Rate::with(['vehicle', 'plate'])->get()->first(function ($item) use ($jenisKendaraanApi, $jenisPlatApi) {
-                $kendaraanMatch = stripos($jenisKendaraanApi, $item->vehicle->type ?? '') !== false;
-                $platMatch = stripos($jenisPlatApi, $item->plate->type ?? '') !== false;
-                return $kendaraanMatch && $platMatch;
+                return stripos($jenisKendaraanApi, $item->vehicle->type ?? '') !== false &&
+                    stripos($jenisPlatApi, $item->plate->type ?? '') !== false;
             });
 
             if (!$rate) {
-                return back()->withErrors([
-                    'image_in' => "Plat $plate berhasil dikenali, tapi tarif parkirnya tidak ditemukan."
-                ]);
+                Storage::disk('public')->delete($imagePath);
+                return back()->withErrors(["image_in" => "Tarif untuk plat $plate tidak ditemukan."]);
             }
         }
 
-        if (strtolower($jenisPlatApi) === 'sipil') {
-            $plate = str_replace('-', '', $plate);
-        }
-
+        // ====== Cek history jika sebelumnya belum keluar ======
         $existingHistory = History::whereRaw("REPLACE(plate, ' ', '') = ?", [$plate])
-            ->whereIn('status', ['Temporary'])
-            ->latest()
-            ->first();
-
-        $image_in_path = $request->file('image_in')->store('histories', 'public');
+            ->where('status', 'Temporary')->latest()->first();
 
         if ($existingHistory) {
-            $totalRate = $this->calculateTotalRate($existingHistory->rate, $existingHistory->gate_in, $is_blacklisted ? null : now());
-            // Update data yang sudah ada
             $existingHistory->update([
-                'total_rate'          => $totalRate,
+                'total_rate'          => $this->calculateTotalRate($rate, $existingHistory->gate_in, $is_blacklisted ? null : now()),
                 'status'              => 'Completed',
                 'gate_out'            => $is_blacklisted ? null : now(),
-                'image_out'           => $image_in_path,
-                'processing_time_out' => $data['processing_time'],
-                'confidence_out'      => $detection['confidence']['overall'],
+                'image_out'           => $imagePath,
+                'processing_time_out' => $data['processing_time_seconds'],
+                'confidence_out'      => $detection['confidence'],
                 'x1_out'              => $detection['bounding_box']['x1'],
                 'x2_out'              => $detection['bounding_box']['x2'],
                 'y1_out'              => $detection['bounding_box']['y1'],
@@ -160,32 +155,25 @@ class HistoryController extends Controller
             ]);
 
             return Inertia::location(route('admin.histories.show', $existingHistory->id));
-        } else {
-            $history = History::create([
-                'plate'               => $plate,
-                'rate_id'             => $rate->id,
-                'total_rate'          => null,
-                'gate_in'             => now(),
-                'gate_out'            => null,
-                'status'              => $is_blacklisted ? 'Rejected' : 'Temporary',
-                'image_in'            => $image_in_path,
-                'processing_time_in'  => $data['processing_time'],
-                'confidence_in'       => $detection['confidence']['overall'],
-                'x1_in'               => $detection['bounding_box']['x1'],
-                'x2_in'               => $detection['bounding_box']['x2'],
-                'y1_in'               => $detection['bounding_box']['y1'],
-                'y2_in'               => $detection['bounding_box']['y2'],
-                'image_out'           => null,
-                'processing_time_out' => null,
-                'confidence_out'      => null,
-                'x1_out'              => null,
-                'x2_out'              => null,
-                'y1_out'              => null,
-                'y2_out'              => null,
-            ]);
-
-            return Inertia::location(route('admin.histories.show', $history->id));
         }
+
+        $history = History::create([
+            'plate'               => $plate,
+            'rate_id'             => $rate->id,
+            'carlist_id'          => $carlistId,
+            'total_rate'          => null,
+            'gate_in'             => now(),
+            'status'              => $is_blacklisted ? 'Rejected' : 'Temporary',
+            'image_in'            => $imagePath,
+            'processing_time_in'  => $data['processing_time_seconds'],
+            'confidence_in'       => $detection['confidence'],
+            'x1_in'               => $detection['bounding_box']['x1'],
+            'x2_in'               => $detection['bounding_box']['x2'],
+            'y1_in'               => $detection['bounding_box']['y1'],
+            'y2_in'               => $detection['bounding_box']['y2'],
+        ]);
+
+        return Inertia::location(route('admin.histories.show', $history->id));
     }
 
     function calculateTotalRate($rate, $gateIn, $gateOut = null)
@@ -232,6 +220,13 @@ class HistoryController extends Controller
     public function destroy($id)
     {
         $history = History::findOrFail($id);
+
+        foreach (['image_in', 'image_out'] as $field) {
+            if ($history->$field && Storage::disk('public')->exists($history->$field)) {
+                Storage::disk('public')->delete($history->$field);
+            }
+        }
+
         $history->delete();
 
         return redirect()->route('admin.histories.index');

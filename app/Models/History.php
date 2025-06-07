@@ -12,6 +12,7 @@ class History extends Model
     protected $fillable = [
         'plate',
         'rate_id',
+        'carlist_id',
         'total_rate',
         'gate_in',
         'gate_out',
@@ -37,5 +38,10 @@ class History extends Model
     public function rate()
     {
         return $this->belongsTo(Rate::class);
+    }
+
+    public function carlist()
+    {
+        return $this->belongsTo(Carlist::class);
     }
 }
