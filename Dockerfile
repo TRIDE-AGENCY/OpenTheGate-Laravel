@@ -52,6 +52,6 @@ RUN npm run build
 # Change current user to laravel
 USER laravel
 
-# Expose port 8000 and start php-fpm server
-EXPOSE 8000
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"] 
+# Expose port 8080 and start php-fpm server
+EXPOSE 8080
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"] 
