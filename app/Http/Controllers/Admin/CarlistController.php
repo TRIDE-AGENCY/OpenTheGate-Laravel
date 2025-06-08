@@ -46,9 +46,9 @@ class CarlistController extends Controller
                     ->withInput();
             }
 
-            $response = Http::timeout(20)->get('https://samsat-api-v1.zeabur.app/check-plate', [
-                'plate' => $request->plate
-            ]);
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . env('SAMSAT_API_TOKEN'),
+            ])->get('https://samsat-api-v2.zeabur.app/check-plate', ['plate' => $request->plate]);
 
             if ($response->successful()) {
                 $data = $response->json();
