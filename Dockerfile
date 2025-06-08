@@ -58,6 +58,7 @@ RUN chmod -R 775 /var/www/bootstrap/cache
 RUN php artisan config:cache || true
 RUN php artisan route:cache || true
 RUN php artisan view:cache || true
+RUN php artisan storage:link || true
 
 # Change current user to laravel
 USER laravel
