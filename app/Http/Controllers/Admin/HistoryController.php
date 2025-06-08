@@ -77,12 +77,15 @@ class HistoryController extends Controller
 
         $detection = $data['detections'][0];
         $plate = str_replace(' ', '', $detection['license_plate']);
+        
+        // Format plate number: convert • to - (example: 50072•00 -> 50072-00)
+        $formattedPlate = str_replace('•', '-', $plate);
 
         // ====== Cek apakah kendaraan terdaftar ======
         $today = Carbon::today();
-        $car = Carlist::get()->first(function ($item) use ($plate, $today) {
+        $car = Carlist::get()->first(function ($item) use ($formattedPlate, $today) {
             $cleaned = fn($p) => strtoupper(str_replace([' ', '-'], '', $p));
-            return $cleaned($item->plate) === $cleaned($plate)
+            return $cleaned($item->plate) === $cleaned($formattedPlate)
                 && $today->between(Carbon::parse($item->start_date), Carbon::parse($item->end_date));
         });
 
@@ -95,12 +98,12 @@ class HistoryController extends Controller
             $rate = Rate::find($car->rate_id);
             if (!$rate) {
                 Storage::disk('public')->delete($imagePath);
-                return back()->withErrors(["image_in" => "Tarif untuk plat $plate tidak ditemukan."]);
+                return back()->withErrors(["image_in" => "Tarif untuk plat $formattedPlate tidak ditemukan."]);
             }
         } else {
             $samsatResponse = Http::withHeaders([
                 'Authorization' => 'Bearer ' . env('SAMSAT_API_TOKEN'),
-            ])->get('https://samsat-api-v2.zeabur.app/check-plate', ['plate' => $plate]);
+            ])->get('https://samsat-api-v2.zeabur.app/check-plate', ['plate' => $formattedPlate]);
 
             $samsatData = $samsatResponse->json();
             $errorMessage = $samsatData['message'] ?? $samsatData['status'] ?? '';
@@ -118,7 +121,7 @@ class HistoryController extends Controller
             ) {
                 if (!in_array($errorMessage, $unsupported)) {
                     Storage::disk('public')->delete($imagePath);
-                    return back()->withErrors(["image_in" => "Plat $plate gagal diverifikasi. $errorMessage"]);
+                    return back()->withErrors(["image_in" => "Plat $formattedPlate gagal diverifikasi. $errorMessage"]);
                 } else if (in_array($errorMessage, $unsupported)) {
                     $jenisKendaraanApi = "Mobil Penumpang";
                     $jenisPlatApi = $samsatData['jenis_plat_nomor'] ?? '';
@@ -132,12 +135,12 @@ class HistoryController extends Controller
 
             if (!$rate) {
                 Storage::disk('public')->delete($imagePath);
-                return back()->withErrors(["image_in" => "Tarif untuk plat $plate tidak ditemukan."]);
+                return back()->withErrors(["image_in" => "Tarif untuk plat $formattedPlate tidak ditemukan."]);
             }
         }
 
         // ====== Cek history jika sebelumnya belum keluar ======
-        $existingHistory = History::whereRaw("REPLACE(plate, ' ', '') = ?", [$plate])
+        $existingHistory = History::whereRaw("REPLACE(plate, ' ', '') = ?", [$formattedPlate])
             ->where('status', 'Temporary')->latest()->first();
 
         if ($existingHistory) {
@@ -158,7 +161,7 @@ class HistoryController extends Controller
         }
 
         $history = History::create([
-            'plate'               => $plate,
+            'plate'               => $formattedPlate,
             'rate_id'             => $rate->id,
             'carlist_id'          => $carlistId,
             'total_rate'          => null,
