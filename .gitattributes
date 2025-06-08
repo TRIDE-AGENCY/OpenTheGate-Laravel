@@ -9,3 +9,10 @@
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
+
+# Keep deployment-specific configurations
+Dockerfile merge=ours
+.dockerignore merge=ours
+
+# Keep our version of modified files during merges
+app/Http/Controllers/Admin/HistoryController.php merge=ours
